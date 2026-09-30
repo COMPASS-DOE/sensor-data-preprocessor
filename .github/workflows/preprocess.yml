@@ -31,7 +31,7 @@ jobs:
           filename: "tokenfile.RDS"
 
       - name: Install remotes and arrow
-        run: Rscript -e "install.packages(c()'remotes', 'arrow')"
+        run: Rscript -e "install.packages(c('remotes', 'arrow'))"
         
       - name: Install rdrop2
         run: Rscript -e "remotes::install_github('COMPASS-DOE/rdrop2refreshtoken')"
