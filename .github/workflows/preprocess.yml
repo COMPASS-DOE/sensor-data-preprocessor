@@ -24,7 +24,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
 
-      - name: Load dropbox token
+      - name: Load Dropbox token
         uses: mobiledevops/secret-to-file-action@v1
         with:
           base64-encoded-secret: ${{ secrets.DROPBOX }}
@@ -33,7 +33,7 @@ jobs:
       - name: Install remotes
         run: Rscript -e "install.packages('remotes')"
         
-       - name: Install rdrop2
+      - name: Install rdrop2
         run: Rscript -e "remotes::install_github('COMPASS-DOE/rdrop2refreshtoken')"
 
       - name: Run preprocessor
