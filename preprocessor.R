@@ -14,16 +14,18 @@ if(file.exists("tokenfile.RDS")) {
 
 rdrop2refreshtoken::drop_auth(new_user = FALSE, rdstoken = "tokenfile.RDS")
 
-files <- drop_dir(path = "COMPASS_PNNL_Data/current_data")
+SOURCE <- "COMPASS_PNNL_Data/current_data"
+files <- drop_dir(path = SOURCE)
 
-site <- "DLG"
-sitefiles <- files[grep(paste0("^", site), files$name),]
+SITE <- "DLG"
+sitefiles <- files[grep(paste0("^", SITE), files$name),]
 
 # Don't download conflicted or backup files
 sitefiles <- sitefiles[grep("conflicted", sitefiles$name, invert = TRUE),]
 sitefiles <- sitefiles[grep("backup", sitefiles$name, invert = TRUE),]
 
-message("Downloading ", nrow(sitefiles), " files...")
+message("Downloading ", nrow(sitefiles), " ", SITE, 
+        " files from ", SOURCE, "...")
 for(f in sitefiles$path_display) {
   drop_download(f, local_path = "raw_data/", overwrite = TRUE)
 }
