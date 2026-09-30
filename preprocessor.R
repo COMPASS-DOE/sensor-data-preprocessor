@@ -30,4 +30,8 @@ for(f in sitefiles$path_display) {
   drop_download(f, local_path = "raw_data/", overwrite = TRUE)
 }
 
+# Read the data
+
+library(compasstools)
+
 message("All done")

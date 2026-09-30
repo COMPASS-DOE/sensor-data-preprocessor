@@ -33,8 +33,8 @@ jobs:
       - name: Install remotes and arrow
         run: Rscript -e "install.packages(c('remotes', 'arrow'))"
         
-      - name: Install rdrop2
-        run: Rscript -e "remotes::install_github('COMPASS-DOE/rdrop2refreshtoken')"
+      - name: Install rdrop2 and compasstools
+        run: Rscript -e "remotes::install_github(c('COMPASS-DOE/rdrop2refreshtoken', 'COMPASS-DOE/compasstools')"
 
       - name: Run preprocessor
         run: Rscript --verbose preprocessor.R
