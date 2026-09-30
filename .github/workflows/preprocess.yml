@@ -31,7 +31,8 @@ jobs:
           filename: "tokenfile.RDS"
 
       - name: Install rdrop2
-        run: Rscript -e "devtools::install_github('COMPASS-DOE/rdrop2refreshtoken')"
+        run: Rscript -e "install.packages('remotes')"
+        run: Rscript -e "remotes::install_github('COMPASS-DOE/rdrop2refreshtoken')"
 
       - name: Run preprocessor
         run: Rscript --verbose preprocessor.R
