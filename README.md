@@ -14,4 +14,4 @@ Sensor data preprocessor for downstream dashboards, etc.
 On an Actions runner, the `.github/workflows/preprocess.yml` file will save
 this secret as a token file accessible to the R script. 
 
-See also https://github.com/wilsonsj100/serc-lateral-flux/blob/dashboard/.github/workflows/update_data.yml
+See also [this workflow](https://github.com/wilsonsj100/serc-lateral-flux/blob/dashboard/.github/workflows/update_data.yml) by [@abbylewis](https://github.com/abbylewis)
