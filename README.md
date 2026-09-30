@@ -7,7 +7,7 @@ Sensor data preprocessor for downstream dashboards, etc.
 This repository has a script (`preprocessor.R`) that
 * Downloads data files in the `current_data/` folder on Dropbox for requested sites
 * Reads in the downloaded data, attaches metadata, restructures into long format
-* Saves the data as a high-performance [Apache parquet files](https://parquet.apache.org) for use by real-time dashbaords
+* Saves the data as one or more high-performance [Apache parquet](https://parquet.apache.org) files for use by real-time dashbaords
 
 This script is triggered by an auto-running GitHub Action that is controlled
 by a YAML configuration file in `.github/workflows/`.
