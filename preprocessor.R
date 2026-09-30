@@ -3,7 +3,7 @@ library(rdrop2refreshtoken)
 
 message("Hello from R!")
 
-writeLines(as.character(Sys.time()), "my-data.txt")
+writeLines(as.character(Sys.time()), "processed_data/my-data.txt")
 
 if(file.exists("tokenfile.RDS")) {
     message("token file exists!")
