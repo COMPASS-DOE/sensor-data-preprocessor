@@ -4,9 +4,17 @@ Sensor data preprocessor for downstream dashboards, etc.
 
 ## How it works
 
-TODO
+This repository has a script (`preprocessor.R`) that
+* Downloads data files in the `current_data/` folder on Dropbox for requested sites
+* Reads in the downloaded data, attaches metadata, restructures into long format
+* Saves the data as a high-performance [Apache parquet files](https://parquet.apache.org) for use by real-time dashbaords
+
+This script is triggered by an auto-running GitHub Action that is controlled
+by a YAML configuration file in `.github/workflows/`.
 
 ## How to create a Dropbox token secret
+
+To get access to the COMPASS Dropbox, the script needs an [OAuth token](https://oauth.net/2/access-tokens/).
 
 1. Generate a token using `token <- rdrop2refreshtoken::drop_auth()` (this is the `rdrop2` package with modifications to support long-lasting tokens; see https://github.com/karthik/rdrop2/issues/201)
 2. Save the token as an RDS file: `saveRDS(token, file = "token.RDS")`

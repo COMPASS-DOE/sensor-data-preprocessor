@@ -51,5 +51,8 @@ rsconnect/
 # Tokens
 tokenfile.*
 
+# Raw datalogger files
+*.dat
+
 # OS files
 .DS_Store
