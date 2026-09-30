@@ -30,8 +30,10 @@ jobs:
           base64-encoded-secret: ${{ secrets.DROPBOX }}
           filename: "tokenfile.RDS"
 
-      - name: Install rdrop2
-        run: Rscript -e "install.packages('remotes')"
+      - name: Install remotes
+        run: Rscript -e "install.packages('pak')"
+        
+       - name: Install rdrop2
         run: Rscript -e "remotes::install_github('COMPASS-DOE/rdrop2refreshtoken')"
 
       - name: Run preprocessor
