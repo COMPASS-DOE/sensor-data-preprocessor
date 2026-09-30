@@ -50,3 +50,6 @@ rsconnect/
 
 # Tokens
 tokenfile.*
+
+# OS files
+.DS_Store
