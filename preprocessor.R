@@ -64,7 +64,7 @@ dt_ex <- expand_df(dt)
 # -------- Process data for one site and sensor 
 
 SENSOR <- "[0-9]_Teros12" # ground TEROS, not stem
-SENSOR_OUTPUT_NAME <- "Teros12"
+SENSOR_OUTPUT_NAME <- "TEROS12"
 WINDOW <- "3 days"
 WINDOW_PERIOD <- as.period(WINDOW)
 
@@ -108,6 +108,6 @@ if(is.character(commit)) {
 }
 
 # If the latest commit is newer than anything we have seen, fetch data:
-# read_parquet("https://github.com/COMPASS-DOE/sensor-data-preprocessor/raw/refs/heads/main/processed_data/DLG_Teros12.parquet")
+# read_parquet("https://github.com/COMPASS-DOE/sensor-data-preprocessor/raw/refs/heads/main/processed_data/DLG_TEROS12.parquet")
 
 message("All done")
