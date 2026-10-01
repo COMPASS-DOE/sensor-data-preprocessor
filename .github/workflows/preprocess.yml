@@ -2,7 +2,7 @@ on:
 
   workflow_dispatch:
 
-name: Pre-process data
+name: Preprocess data
 
 jobs:
   timed_action:
