@@ -65,6 +65,8 @@ dt_ex <- expand_df(dt)
 
 SENSOR <- "[0-9]_Teros12" # ground TEROS, not stem
 SENSOR_OUTPUT_NAME <- "Teros12"
+WINDOW <- "3 days"
+WINDOW_PERIOD <- as.period(WINDOW)
 
 regex <- paste0("^", SITE, ".*", SENSOR)
 files <- list.files(RAW_DATA, regex, full.names = TRUE)
@@ -72,8 +74,11 @@ dat_list <- list()
 for(f in files) {
   message("\tReading ", basename(f))
   compasstools::read_datalogger_file(f) |> 
+    # drop columns and filter for window period
     select(-Format, -RECORD, -PB, -Statname, -BattV_Avg) |> 
     mutate(TIMESTAMP = ymd_hms(TIMESTAMP, tz = "EST")) |> 
+    filter(Sys.time() - TIMESTAMP < WINDOW_PERIOD) |> 
+    # ...before reshaping and saving
     pivot_longer(c(-Logger, -Table, -TIMESTAMP), names_to = "loggernet_variable") -> 
     dat_list[[f]]
 }
