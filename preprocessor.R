@@ -98,7 +98,8 @@ write_parquet(x, file.path(PROCESSED_DATA, outfile))
 # -------- Example: check latest Git commit online
 
 try(
-  commit <- system("git ls-remote https://github.com/COMPASS-DOE/sensor-data-preprocessor.git | head -n 1 | cut -c 1-7")
+  commit <- system("git ls-remote https://github.com/COMPASS-DOE/sensor-data-preprocessor.git | head -n 1 | cut -c 1-7",
+                   intern = TRUE)
 )
 if(is.character(commit)) {
   message("Latest commit is ", commit)
