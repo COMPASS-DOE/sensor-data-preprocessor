@@ -1,6 +1,6 @@
 # Main preprocessor script
 
-# -------- Setup and confirm Dropbox token
+# -------- Setup and check Dropbox token
 
 # Packages
 library(rdrop2refreshtoken)
@@ -22,7 +22,7 @@ if(file.exists("tokenfile.RDS")) {
     stop("No Dropbox token file :(")
 }
 
-rdrop2refreshtoken::drop_auth(new_user = FALSE, rdstoken = "tokenfile.RDS")
+drop_auth(new_user = FALSE, rdstoken = "tokenfile.RDS")
 
 
 # -------- Download site data 
@@ -60,8 +60,6 @@ dt$note <- dt$valid_through <- NULL
 source("https://raw.githubusercontent.com/COMPASS-DOE/sensor-data-pipeline/refs/heads/main/pipeline/L1_normalize-utils.R")
 dt_ex <- expand_df(dt)
 
-# Read the data
-
 
 # -------- Process data for one site and sensor 
 
@@ -83,7 +81,8 @@ for(f in files) {
 bind_rows(dat_list) |> 
   left_join(dt_ex, 
             by = c("Logger", "Table", "loggernet_variable"),
-            relationship = "many-to-one") ->
+            relationship = "many-to-one") |> 
+  select(-Table, -loggernet_variable) ->
   x
 
 outfile <- paste0(SITE, "_", SENSOR_OUTPUT_NAME, ".parquet")
