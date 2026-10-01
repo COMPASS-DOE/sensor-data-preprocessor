@@ -94,4 +94,19 @@ outfile <- paste0(SITE, "_", SENSOR_OUTPUT_NAME, ".parquet")
 message("Writing ", outfile)
 write_parquet(x, file.path(PROCESSED_DATA, outfile))
 
+
+# -------- Example: check latest Git commit online
+
+try(
+  commit <- system("git ls-remote https://github.com/COMPASS-DOE/sensor-data-preprocessor.git | head -n 1 | cut -c 1-7")
+)
+if(is.character(commit)) {
+  message("Latest commit is ", commit)
+} else {
+  warning("Couldn't contact GitHub")
+}
+
+# If the latest commit is newer than anything we have seen, fetch data:
+# read_parquet("https://github.com/COMPASS-DOE/sensor-data-preprocessor/raw/refs/heads/main/processed_data/DLG_Teros12.parquet")
+
 message("All done")
