@@ -55,10 +55,7 @@ dt$note <- dt$valid_through <- NULL
 # For compactness, the design table may have expansions. For example,
 # "DiffVoltA_Avg({1:8})" -> "DiffVoltA_Avg(1)", "DiffVoltA_Avg(2)", etc.
 # Expand these rows into their individual entries
-# For this we need the expand_df() function
-# TODO: maybe move this back into compasstools?
-source("https://raw.githubusercontent.com/COMPASS-DOE/sensor-data-pipeline/refs/heads/main/pipeline/L1_normalize-utils.R")
-dt_ex <- expand_df(dt)
+dt_ex <- compasstools::expand_df(dt)
 
 
 # -------- Process data for one site and sensor 
