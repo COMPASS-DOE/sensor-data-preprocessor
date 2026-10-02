@@ -31,9 +31,10 @@ drop_auth(new_user = FALSE, rdstoken = "tokenfile.RDS")
 
 # -------- Download site data 
 
-download_site_data <- function(site, source, raw_data = RAW_DATA) {
+download_site_data <- function(site, dropbox_source, 
+                               raw_data = RAW_DATA) {
   message("Getting file list...")
-  files <- drop_dir(path = source)
+  files <- drop_dir(path = dropbox_source)
   sitefiles <- files[grep(paste0("^", site), files$name),]
   
   # Don't download conflicted or backup files
@@ -41,7 +42,7 @@ download_site_data <- function(site, source, raw_data = RAW_DATA) {
   sitefiles <- sitefiles[grep("backup", sitefiles$name, invert = TRUE),]
   
   message("Downloading ", nrow(sitefiles), " ", site, 
-          " files from ", source, "...")
+          " files from ", dropbox_source, "...")
   for(f in sitefiles$path_display) {
     drop_download(f, local_path = raw_data, overwrite = TRUE)
   }
@@ -65,8 +66,7 @@ dt$note <- dt$valid_through <- NULL
 dt_ex <- compasstools::expand_df(dt)
 
 
-# -------- Process data for one site and sensor 
-
+# -------- Process data for one site and sensor
 
 process_data <- function(site, sensor, sensor_output_name,
                          window_period = WINDOW_PERIOD, 
@@ -75,6 +75,9 @@ process_data <- function(site, sensor, sensor_output_name,
   
   regex <- paste0("^", site, ".*", sensor)
   files <- list.files(raw_data, regex, full.names = TRUE)
+  message("I see ", length(files), " files to process for ", 
+          site, " ", sensor_output_name)
+  
   dat_list <- list()
   for(f in files) {
     message("\tReading ", basename(f))
@@ -103,6 +106,7 @@ process_data <- function(site, sensor, sensor_output_name,
 process_data("DLG", "[0-9]_Teros12", "TEROS12")
 process_data("DLG", "Teros21", "TEROS21")
 
+message("All done")
 
 
 # -------- Examples for dashboards
@@ -118,7 +122,6 @@ if(is.character(commit)) {
   warning("Couldn't contact GitHub")
 }
 
-# If the latest commit is newer than anything we have seen, fetch data:
+# If the latest commit is newer than anything we have seen, 
+# fetch data. For example:
 # read_parquet("https://github.com/COMPASS-DOE/sensor-data-preprocessor/raw/refs/heads/main/processed_data/DLG_TEROS12.parquet")
-
-message("All done")
