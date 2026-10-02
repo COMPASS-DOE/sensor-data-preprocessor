@@ -6,7 +6,7 @@ name: Preprocess data
 
 jobs:
   timed_action:
-    name: Preproocess COMPASS sensor data
+    name: Preprocess COMPASS sensor data
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
