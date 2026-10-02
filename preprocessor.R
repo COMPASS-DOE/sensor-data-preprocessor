@@ -14,6 +14,10 @@ library(lubridate)
 RAW_DATA <- "raw_data/"
 PROCESSED_DATA <- "processed_data/"
 
+# Data settings
+WINDOW <- "3 days"
+WINDOW_PERIOD <- as.period(WINDOW)
+
 message("Welcome to preprocessor.R")
 
 if(file.exists("tokenfile.RDS")) {
@@ -27,21 +31,24 @@ drop_auth(new_user = FALSE, rdstoken = "tokenfile.RDS")
 
 # -------- Download site data 
 
-SOURCE <- "COMPASS_PNNL_Data/current_data"
-files <- drop_dir(path = SOURCE)
-
-SITE <- "DLG"
-sitefiles <- files[grep(paste0("^", SITE), files$name),]
-
-# Don't download conflicted or backup files
-sitefiles <- sitefiles[grep("conflicted", sitefiles$name, invert = TRUE),]
-sitefiles <- sitefiles[grep("backup", sitefiles$name, invert = TRUE),]
-
-message("Downloading ", nrow(sitefiles), " ", SITE, 
-        " files from ", SOURCE, "...")
-for(f in sitefiles$path_display) {
-  drop_download(f, local_path = RAW_DATA, overwrite = TRUE)
+download_site_data <- function(site, source, raw_data = RAW_DATA) {
+  message("Getting file list...")
+  files <- drop_dir(path = source)
+  sitefiles <- files[grep(paste0("^", site), files$name),]
+  
+  # Don't download conflicted or backup files
+  sitefiles <- sitefiles[grep("conflicted", sitefiles$name, invert = TRUE),]
+  sitefiles <- sitefiles[grep("backup", sitefiles$name, invert = TRUE),]
+  
+  message("Downloading ", nrow(sitefiles), " ", site, 
+          " files from ", source, "...")
+  for(f in sitefiles$path_display) {
+    drop_download(f, local_path = raw_data, overwrite = TRUE)
+  }
 }
+
+download_site_data("DLG", "COMPASS_PNNL_Data/current_data")
+
 
 # -------- Read and prep the design table 
 
@@ -60,40 +67,47 @@ dt_ex <- compasstools::expand_df(dt)
 
 # -------- Process data for one site and sensor 
 
-SENSOR <- "[0-9]_Teros12" # ground TEROS, not stem
-SENSOR_OUTPUT_NAME <- "TEROS12"
-WINDOW <- "3 days"
-WINDOW_PERIOD <- as.period(WINDOW)
 
-regex <- paste0("^", SITE, ".*", SENSOR)
-files <- list.files(RAW_DATA, regex, full.names = TRUE)
-dat_list <- list()
-for(f in files) {
-  message("\tReading ", basename(f))
-  compasstools::read_datalogger_file(f) |> 
-    # drop columns and filter for window period
-    select(-Format, -RECORD, -PB, -Statname, -BattV_Avg) |> 
-    mutate(TIMESTAMP = ymd_hms(TIMESTAMP, tz = "EST")) |> 
-    filter(Sys.time() - TIMESTAMP < WINDOW_PERIOD) |> 
-    # ...before reshaping and saving
-    pivot_longer(c(-Logger, -Table, -TIMESTAMP), names_to = "loggernet_variable") -> 
-    dat_list[[f]]
+process_data <- function(site, sensor, sensor_output_name,
+                         window_period = WINDOW_PERIOD, 
+                         raw_data = RAW_DATA,
+                         processed_data = PROCESSED_DATA) {
+  
+  regex <- paste0("^", site, ".*", sensor)
+  files <- list.files(raw_data, regex, full.names = TRUE)
+  dat_list <- list()
+  for(f in files) {
+    message("\tReading ", basename(f))
+    compasstools::read_datalogger_file(f) |> 
+      # drop columns and filter for window period
+      select(-Format, -RECORD, -PB, -Statname, -BattV_Avg) |> 
+      mutate(TIMESTAMP = ymd_hms(TIMESTAMP, tz = "EST")) |> 
+      filter(Sys.time() - TIMESTAMP < window_period) |> 
+      # ...before reshaping and saving
+      pivot_longer(c(-Logger, -Table, -TIMESTAMP), names_to = "loggernet_variable") -> 
+      dat_list[[f]]
+  }
+  
+  bind_rows(dat_list) |> 
+    left_join(dt_ex, 
+              by = c("Logger", "Table", "loggernet_variable"),
+              relationship = "many-to-one") |> 
+    select(-Table, -loggernet_variable) ->
+    x
+  
+  outfile <- paste0(site, "_", sensor_output_name, ".parquet")
+  message("Writing ", nrow(x), " data rows to ", outfile)
+  write_parquet(x, file.path(processed_data, outfile))
 }
 
-bind_rows(dat_list) |> 
-  left_join(dt_ex, 
-            by = c("Logger", "Table", "loggernet_variable"),
-            relationship = "many-to-one") |> 
-  select(-Table, -loggernet_variable) ->
-  x
-
-outfile <- paste0(SITE, "_", SENSOR_OUTPUT_NAME, ".parquet")
-message("Writing ", outfile)
-write_parquet(x, file.path(PROCESSED_DATA, outfile))
+process_data("DLG", "[0-9]_Teros12", "TEROS12")
+process_data("DLG", "Teros21", "TEROS21")
 
 
-# -------- Example: check latest Git commit online
 
+# -------- Examples for dashboards
+
+# Check latest Git commit online
 try(
   commit <- system("git ls-remote https://github.com/COMPASS-DOE/sensor-data-preprocessor.git | head -n 1 | cut -c 1-7",
                    intern = TRUE)
