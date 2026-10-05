@@ -9,6 +9,7 @@ library(arrow)
 library(dplyr)
 library(tidyr)
 library(lubridate)
+library(readr)
 
 # File locations
 RAW_DATA <- "raw_data/"
@@ -68,12 +69,12 @@ dt_ex <- compasstools::expand_df(dt)
 
 # -------- Process data for one site and sensor
 
-process_data <- function(site, sensor, sensor_output_name,
+process_data <- function(site, sensor_regex, sensor_output_name,
                          window_period = WINDOW_PERIOD, 
                          raw_data = RAW_DATA,
                          processed_data = PROCESSED_DATA) {
   
-  regex <- paste0("^", site, ".*", sensor)
+  regex <- paste0("^", site, ".*", sensor_regex)
   files <- list.files(raw_data, regex, full.names = TRUE)
   message("I see ", length(files), " files to process for ", 
           site, " ", sensor_output_name)
@@ -101,10 +102,29 @@ process_data <- function(site, sensor, sensor_output_name,
   outfile <- paste0(site, "_", sensor_output_name, ".parquet")
   message("Writing ", nrow(x), " data rows to ", outfile)
   write_parquet(x, file.path(processed_data, outfile))
+  return(list(nrow(x), max(x$TIMESTAMP)))
 }
 
-process_data("DLG", "[0-9]_Teros12", "TEROS12")
-process_data("DLG", "Teros21", "TEROS21")
+data_to_process <- tribble(
+  ~Site, ~sensor_regex, ~Sensor, ~Window,
+  "DLG", "[0-9]_Teros12", "TEROS12", WINDOW,
+  "DLG", "Teros21", "TEROS21", WINDOW
+)
+data_to_process$N <- NA_integer_
+data_to_process$Latest_EST <- NA_character_
+
+for(i in seq_len(nrow(data_to_process))) {
+  nums <- process_data(data_to_process$Site[i], 
+                 data_to_process$sensor_regex[i],
+                 data_to_process$Sensor[i])
+  data_to_process$N[i] <- nums[[1]]
+  data_to_process$Latest_EST[i] <- as.character(nums[[2]])
+}
+
+
+data_to_process |> 
+  select(-sensor_regex) |> 
+  write_csv(file.path(PROCESSED_DATA, "manifest.csv"))
 
 message("All done")
 
