@@ -82,9 +82,12 @@ process_data <- function(site, sensor_regex, sensor_output_name,
   dat_list <- list()
   for(f in files) {
     message("\tReading ", basename(f))
-    compasstools::read_datalogger_file(f) |> 
+    dat <- compasstools::read_datalogger_file(f)
+    dat$PB <- NULL # this may or may not exist
+    dat |> 
       # drop columns and filter for window period
-      select(-Format, -RECORD, -PB, -Statname, -BattV_Avg) |> 
+      select(-starts_with("BattV")) |>  # naming is inconsistent
+      select(-Format, -RECORD, -Statname) |> 
       mutate(TIMESTAMP = ymd_hms(TIMESTAMP, tz = "EST")) |> 
       filter(Sys.time() - TIMESTAMP < window_period) |> 
       # ...before reshaping and saving
@@ -108,7 +111,8 @@ process_data <- function(site, sensor_regex, sensor_output_name,
 data_to_process <- tribble(
   ~Site, ~sensor_regex, ~Sensor, ~Window,
   "DLG", "[0-9]_Teros12", "TEROS12", WINDOW,
-  "DLG", "Teros21", "TEROS21", WINDOW
+  "DLG", "Teros21", "TEROS21", WINDOW,
+  "DLG", "Level_Troll", "LEVELTROLL", WINDOW
 )
 data_to_process$N <- NA_integer_
 data_to_process$Latest_EST <- NA_character_
