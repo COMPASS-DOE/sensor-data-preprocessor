@@ -82,11 +82,12 @@ process_data <- function(site, sensor_regex, sensor_output_name,
   dat_list <- list()
   for(f in files) {
     message("\tReading ", basename(f))
-    dat <- compasstools::read_datalogger_file(f)
-    dat$PB <- NULL # this may or may not exist
-    dat |> 
+    compasstools::read_datalogger_file(f) |> 
       # drop columns and filter for window period
-      select(-starts_with("BattV")) |>  # naming is inconsistent
+      select(-starts_with("PB")) |>  # this may or may not exist
+      select(-starts_with("BattV")) |>  # inconsistent naming; may be BattV_Avg
+      #select(-contains("00_ID(")) |> # AquaTROLL IDs are strings, not helpful
+      #select(-contains("00_DV(")) |> # what is this
       select(-Format, -RECORD, -Statname) |> 
       mutate(TIMESTAMP = ymd_hms(TIMESTAMP, tz = "EST")) |> 
       filter(Sys.time() - TIMESTAMP < window_period) |> 
