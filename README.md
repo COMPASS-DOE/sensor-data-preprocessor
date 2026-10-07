@@ -2,6 +2,8 @@
 
 Sensor data preprocessor for downstream dashboards, etc.
 
+![COMPASS sensor data flow](images/compass-data-flow.png)
+
 ## How it works
 
 This repository has a script (`preprocessor.R`) that
