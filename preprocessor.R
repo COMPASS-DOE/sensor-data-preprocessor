@@ -113,7 +113,8 @@ data_to_process <- tribble(
   ~Site, ~sensor_regex, ~Sensor, ~Window,
   "DLG", "[0-9]_Teros12", "TEROS12", WINDOW,
   "DLG", "Teros21", "TEROS21", WINDOW,
-  "DLG", "Level_Troll", "LEVELTROLL", WINDOW
+  "DLG", "Level_Troll", "LEVELTROLL", WINDOW,
+  "DLG", "WaterLevel600", "AQUATROLL600", WINDOW
 )
 data_to_process$N <- NA_integer_
 data_to_process$Latest_EST <- NA_character_
