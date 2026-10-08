@@ -1,6 +1,9 @@
 # Main preprocessor script
+# BBL 2026
 
-# -------- Setup and check Dropbox token
+# -------- Setup
+
+message("Welcome to preprocessor.R")
 
 # Packages
 library(rdrop2refreshtoken)
@@ -19,8 +22,7 @@ PROCESSED_DATA <- "processed_data/"
 WINDOW <- "3 days"
 WINDOW_PERIOD <- as.period(WINDOW)
 
-message("Welcome to preprocessor.R")
-
+# Check Dropbox token
 if(file.exists("tokenfile.RDS")) {
     message("Dropbox token file exists!")
 } else {
@@ -106,28 +108,34 @@ process_data <- function(site, sensor_regex, sensor_output_name,
   outfile <- paste0(site, "_", sensor_output_name, ".parquet")
   message("Writing ", nrow(x), " data rows to ", outfile)
   write_parquet(x, file.path(processed_data, outfile))
-  return(list(nrow(x), max(x$TIMESTAMP)))
+  return(list(nrow(x), max(x$TIMESTAMP), Sys.time()))
 }
 
-data_to_process <- tribble(
-  ~Site, ~sensor_regex, ~Sensor, ~Window,
-  "DLG", "[0-9]_Teros12", "TEROS12", WINDOW,
-  "DLG", "Teros21", "TEROS21", WINDOW,
-  "DLG", "Level_Troll", "LEVELTROLL", WINDOW,
-  "DLG", "WaterLevel600", "AQUATROLL600", WINDOW
-)
-data_to_process$N <- NA_integer_
-data_to_process$Latest_EST <- NA_character_
+# Create a data frame to track what to process and results
+tribble(
+  ~Site, ~sensor_regex,   ~Sensor,
+  "DLG", "[0-9]_Teros12", "TEROS12",
+  "DLG", "Teros21",       "TEROS21",
+  "DLG", "Level_Troll",   "LEVELTROLL",
+  "DLG", "WaterLevel600", "AQUATROLL600"
+) |> 
+  mutate(Window = WINDOW, 
+         N = NA_integer_,
+         Latest_EST = NA_character_,
+         Written_EST = NA_character_) ->
+  data_to_process
 
 for(i in seq_len(nrow(data_to_process))) {
   nums <- process_data(data_to_process$Site[i], 
                  data_to_process$sensor_regex[i],
                  data_to_process$Sensor[i])
+  # process_data returns a list with N, latest timestamp, and current time
   data_to_process$N[i] <- nums[[1]]
   data_to_process$Latest_EST[i] <- as.character(nums[[2]])
+  data_to_process$Written_EST[i] <- as.character(with_tz(nums[[3]], "EST"))
 }
 
-
+# Write manifest: list of files
 data_to_process |> 
   select(-sensor_regex) |> 
   write_csv(file.path(PROCESSED_DATA, "manifest.csv"))
