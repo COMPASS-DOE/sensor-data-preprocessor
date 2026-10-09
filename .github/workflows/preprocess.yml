@@ -1,8 +1,9 @@
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '41 * * * *'
-    
+    - cron: '56 * * * *'
+  workflow_dispatch:  # Allows manual triggering for testing
+
+
 name: Preprocess data
 
 jobs:
