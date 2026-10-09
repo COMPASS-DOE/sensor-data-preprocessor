@@ -52,6 +52,7 @@ download_site_data <- function(site, dropbox_source,
 }
 
 download_site_data("DLG", "COMPASS_PNNL_Data/current_data")
+download_site_data("Compass_CRC", "COMPASS_PNNL_Data/current_data")
 
 
 # -------- Read and prep the design table 
@@ -76,7 +77,8 @@ process_data <- function(site, sensor_regex, sensor_output_name,
                          raw_data = RAW_DATA,
                          processed_data = PROCESSED_DATA) {
   
-  regex <- paste0("^", site, ".*", sensor_regex)
+  # Synoptic site filenames are prefixed by "Compass_"
+  regex <- paste0("^(Compass_)?", site, ".*", sensor_regex)
   files <- list.files(raw_data, regex, full.names = TRUE)
   message("I see ", length(files), " files to process for ", 
           site, " ", sensor_output_name)
@@ -88,7 +90,8 @@ process_data <- function(site, sensor_regex, sensor_output_name,
       # drop columns and filter for window period
       select(-starts_with("PB")) |>  # this may or may not exist
       select(-starts_with("BattV")) |>  # inconsistent naming; may be BattV_Avg
-      #select(-contains("00_ID(")) |> # AquaTROLL IDs are strings, not helpful
+      select(-matches("_ID.\\(")) |> # AquaTROLL IDs are strings, not helpful
+      select(-matches("_Dev.\\(")) |> # AquaTROLL IDs are strings, not helpful
       #select(-contains("00_DV(")) |> # what is this
       select(-Format, -RECORD, -Statname) |> 
       mutate(TIMESTAMP = ymd_hms(TIMESTAMP, tz = "EST")) |> 
@@ -117,7 +120,8 @@ tribble(
   "DLG", "[0-9]_Teros12", "TEROS12",
   "DLG", "Teros21",       "TEROS21",
   "DLG", "Level_Troll",   "LEVELTROLL",
-  "DLG", "WaterLevel600", "AQUATROLL600"
+  "DLG", "WaterLevel600", "AQUATROLL600",
+  "CRC", "WaterLevel600", "AQUATROLL600"
 ) |> 
   mutate(Window = WINDOW, 
          N = NA_integer_,
