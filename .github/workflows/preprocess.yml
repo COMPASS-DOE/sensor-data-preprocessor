@@ -1,8 +1,7 @@
 on:
   workflow_dispatch:
   schedule:
-    - cron: "54 * * * *"
-      timezone: "America/New_York"
+  - cron: "17 * * * *"
 
 name: Preprocess data
 
