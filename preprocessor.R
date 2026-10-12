@@ -144,6 +144,20 @@ data_to_process |>
   select(-sensor_regex) |> 
   write_csv(file.path(PROCESSED_DATA, "manifest.csv"))
 
+
+# Request from Roberta for the DELUGE week: email alert when water level
+# reached 35 cm in F1
+# The sensor is mounted at 150 cm so this corresponds to when it reached 115
+if(Sys.Date() > "2026-10-18" & Sys.Date() < "2026-10-24") {
+  read_parquet("processed_data/DLG_LEVELTROLL.parquet") |> 
+    filter(research_name == "distance-to-surface", Plot == "F1") |> 
+    slice_max(TIMESTAMP) |> 
+    pull(value) ->
+    f1_water_level
+  message("F1 water level is ", f1_water_level)
+}
+
+
 message("All done")
 
 
