@@ -4,7 +4,6 @@ on:
 
   workflow_dispatch:  # allows manual triggering for testing
 
-
 name: Preprocess data
 
 jobs:
