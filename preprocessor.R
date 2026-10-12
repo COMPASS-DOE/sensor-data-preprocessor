@@ -24,9 +24,9 @@ WINDOW_PERIOD <- as.period(WINDOW)
 
 # Check Dropbox token
 if(file.exists("tokenfile.RDS")) {
-    message("Dropbox token file exists!")
+  message("Dropbox token file exists!")
 } else {
-    stop("No Dropbox token file :(")
+  stop("No Dropbox token file :(")
 }
 
 drop_auth(new_user = FALSE, rdstoken = "tokenfile.RDS")
@@ -131,8 +131,8 @@ tribble(
 
 for(i in seq_len(nrow(data_to_process))) {
   nums <- process_data(data_to_process$Site[i], 
-                 data_to_process$sensor_regex[i],
-                 data_to_process$Sensor[i])
+                       data_to_process$sensor_regex[i],
+                       data_to_process$Sensor[i])
   # process_data returns a list with N, latest timestamp, and current time
   data_to_process$N[i] <- nums[[1]]
   data_to_process$Latest_EST[i] <- as.character(nums[[2]])
@@ -148,15 +148,24 @@ data_to_process |>
 # Request from Roberta for the DELUGE week: email alert when water level
 # reached 35 cm in F1
 # The sensor is mounted at 150 cm so this corresponds to when it reached 115
-if(Sys.Date() > "2026-10-18" & Sys.Date() < "2026-10-24") {
+if( # this is only active within the DELUGE test days
+  Sys.Date() > "2026-10-18" & Sys.Date() < "2026-10-24" &
+  # and not when running on GitHub Actions
+  Sys.getenv("CI") == "") {
   read_parquet("processed_data/DLG_LEVELTROLL.parquet") |> 
     filter(research_name == "distance-to-surface", Plot == "F1") |> 
     slice_max(TIMESTAMP) |> 
     pull(value) ->
-    f1_water_level
+    sensor_level
+  
+  f1_water_level <- round(151 - sensor_level, 0)
   message("F1 water level is ", f1_water_level)
+  if(f1_water_level >= 35) {
+    message("\tsending email notification!")
+    # Run AppleScript to instruct Outlook to send notification email
+    system2("osascript", args = c("email.scpt", f1_water_level))
+  }
 }
-
 
 message("All done")
 
