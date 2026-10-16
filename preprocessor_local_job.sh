@@ -16,4 +16,4 @@ git pull --ff-only
 # ...and commit and push updates
 git add .
 git commit -m "Automated update (local)" || echo "No changes to commit"
-git --verbose push
+git push --verbose 
