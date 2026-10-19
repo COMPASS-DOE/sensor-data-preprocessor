@@ -2,6 +2,8 @@
 # Runs the preprocessor and commits and pushes any changed files
 # BBL 2026
 
+# 19 October: switched to launchd because cron is running job as root
+
 echo "------------------------------------------------------------"
 date
 
