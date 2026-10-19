@@ -162,6 +162,8 @@ if( # this is only active within the DELUGE test days
   message("F1 water level is ", f1_water_level)
   if(f1_water_level >= 35) {
     message("\tsending email notification!")
+    system2("echo", "Sending email notification about water level!")
+    
     # Run AppleScript to instruct Outlook to send notification email
     system2("osascript", args = c("email.scpt", f1_water_level))
   }
