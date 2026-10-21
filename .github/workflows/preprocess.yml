@@ -1,6 +1,6 @@
 on:
-#  schedule:
-#    - cron: '56 * * * *'
+  schedule:
+    - cron: '56 * * * *'
 
   workflow_dispatch:  # allows manual triggering for testing
 
