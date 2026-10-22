@@ -147,7 +147,7 @@ data_to_process |>
 
 # Request from Roberta for the DELUGE week: email alert when water level
 # reached 35 cm in F1
-# The sensor is mounted at 150 cm so this corresponds to when it reached 115
+# The sensor is mounted at 152 cm so this corresponds to when it reached 115
 if( # this is only active within the DELUGE test days
   Sys.Date() > "2026-10-18" & Sys.Date() < "2026-10-24" &
   # and not when running on GitHub Actions
@@ -158,7 +158,7 @@ if( # this is only active within the DELUGE test days
     pull(value) ->
     sensor_level
   
-  f1_water_level <- round(151 - sensor_level, 0)
+  f1_water_level <- round(152 - sensor_level, 0)
   message("F1 water level is ", f1_water_level)
   if(f1_water_level >= 35) {
     message("\tsending email notification!")
